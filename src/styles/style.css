@@ -1,3 +1,14 @@
 body {
     background-color: ivory;
 }
+
+#file-directory-bg {
+    width: 320px;
+    height: 100vh;
+    max-height: 100vh;
+    background-color: #2c2b2b;
+}
+
+.parent-folder-of-root {
+    color: white;
+}
