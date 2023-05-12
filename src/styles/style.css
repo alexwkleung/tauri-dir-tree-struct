@@ -12,3 +12,7 @@ body {
 .parent-folder-of-root {
     color: white;
 }
+
+.child-of-parent-folder {
+    color: grey;
+}
