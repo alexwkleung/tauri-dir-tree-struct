@@ -74,56 +74,71 @@ function fDirProps(
 
 //logs
 //console.log(fDirProps(fReadDir("Iris_Notes"), "children"));
-//console.log(fDirProps(fReadDir("Iris_Notes"), "name"));
+//console.log(fDirProps(fReadDir("Iris_Notes/Sample Notes"), "name"));
 //console.log(fDirProps(fReadDir("Iris_Notes"), "path"));
 
 class DirectoryTree {
-    private directoryNamesTemp: string[] = [];
-    private directoryNames: string[] = [];
-
     public createDirTreeParentNodes(numberOfParentNodes: number, dirPropName: string[]) {            
         for(let i = 0; i < numberOfParentNodes; i++) {
             //create parent folder node
             const parentFolder: HTMLDivElement = document.createElement('div');
+
+            //initial active state
+            parentFolder.setAttribute("id", "not-active-parent");
+
             parentFolder.setAttribute("class", "parent-folder-of-root");
             fileDirectoryTreeNode.appendChild(parentFolder);
 
             //create text node based on directory name
-            const pfTextNode = document.createTextNode(dirPropName[i])
-            parentFolder.appendChild(pfTextNode)
+            const pfTextNode: Text = document.createTextNode(dirPropName[i]);
+            parentFolder.appendChild(pfTextNode);
         }
     }
 
-    public async getDirNames() {
-        //const directoryNamesTemp: string[] = [];
-    
+    //this correlates to parent folder listener, so check logic
+    public createDirTreeChildNodes(numberOfChildNodes: number, dirPropName: string[]) {
+        for(let i = 0; i < numberOfChildNodes; i++) {
+            const childTree: HTMLDivElement = document.createElement('div');
+            childTree.setAttribute("class", "child-of-parent-folder");
+
+            const ctTextNode: Text = document.createTextNode(dirPropName[i]);
+            childTree.appendChild(ctTextNode);
+
+            const parentNodeT: HTMLDivElement = document.querySelector('.parent-folder-of-root');
+            parentNodeT.appendChild(childTree);
+        }
+    }
+
+    /*
+    public isChildFolder(): boolean {
+        return;
+    }
+
+    public isRootChildFile(): boolean {
+        return;
+    }
+    */
+
+    public async getDirNames(dir: string) {
+        const directoryNamesTemp: string[] = [];
+        const directoryNames: string[] = [];
+
         //get directory (folder) names
-        const propRes: number[] = await fDirProps(fReadDir("Iris_Notes"), "name").then(
-            (v) => v.map((elem: any) => this.directoryNamesTemp.push(elem))
+        const propRes: number[] = await fDirProps(fReadDir(dir), "name").then(
+            (v) => v.map((elem: any) => directoryNamesTemp.push(elem))
         );
     
-        //log
-        //console.log(directoryNamesTemp);
-    
-        //const directoryNames: string[] = [];
-    
-        for(let i = 0; i < this.directoryNamesTemp.length; i++) {
+        for(let i = 0; i < directoryNamesTemp.length; i++) {
             //temporarily filter out .DS_Store
-            if(this.directoryNamesTemp[i] !== ".DS_Store") {
-                this.directoryNames.push(this.directoryNamesTemp[i]);
+            if(directoryNamesTemp[i] !== ".DS_Store") {
+                directoryNames.push(directoryNamesTemp[i]);
             }
         }
     
         //log
-        //console.log(this.directoryNames);
-    
-        for(let i = 1; i < this.directoryNames.length; i++) {
-            await fDirProps(fReadDir("Iris_Notes/" + this.directoryNames[i]), "name").then(
-                (v) => v.map((elem) => elem)
-            )
-        }
+        //console.log(directoryNames);
 
-        return this.directoryNames;
+        return directoryNames;
     }
 
     /*
@@ -133,22 +148,77 @@ class DirectoryTree {
     */
 }
 
+class DirectoryTreeListeners extends DirectoryTree {
+    public parentFolderListener() {
+        const fileDirTreeSelector: HTMLDivElement = document.querySelector('#file-directory-tree');
+
+        const getParentTags: HTMLCollectionOf<Element> = fileDirTreeSelector.getElementsByClassName('parent-folder-of-root');
+
+        const parentTagsArr: string[] = [];
+
+        //iterate over parent tags
+        for(let i = 0; i < getParentTags.length; i++) {
+            //for every parent tag, get the textContent value from the node
+            parentTagsArr.push(getParentTags[i].textContent);
+        }
+
+        //log
+        //console.log(parentTagsArr);
+
+        //for all parent tags
+        for(let i = 0; i < getParentTags.length; i++) {     
+            //when any parent tag (folder) is clicked
+            getParentTags[i].addEventListener('click', async () => {  
+                if(getParentTags[i].getAttribute("not-active-parent")) {
+                    return;
+                } else {
+                    //set clicked parent div id to 'is-active-parent'
+                    getParentTags[i].setAttribute("id", "is-active-parent")
+
+                    const childLength: number = await this.getDirNames("Iris_Notes/" + parentTagsArr[i]).then(
+                        (v) => v.length
+                    );
+
+                    //log
+                    //console.log(parentTagsArr[i]);
+
+                    //log
+                    //console.log(childLength);
+
+                    /*
+                    this.createDirTreeChildNodes(
+                        childLength, 
+                        await this.getDirNames("Iris_Notes/" + parentTagsArr[i]).then(
+                            (c) => c
+                    ));   
+                    */
+
+                    //log
+                    //console.log(await this.getDirNames("Iris_Notes/" + parentTagsArr[i]));
+                }
+
+                //log
+                console.log("clicked on parent folder!");
+            });
+        }   
+    }
+}
+
 //invoke 
 async function invoke(): Promise<void> {
     //create DirectoryTree object
     const dirTree = new DirectoryTree();
 
-    //test log
+    const dirTreeListeners = new DirectoryTreeListeners();
+    
+    //log
     //console.log(await fDirProps(fReadDir("Iris_Notes"), "name").then((v) =>  v.length));
 
     dirTree.createDirTreeParentNodes(
-        await dirTree.getDirNames().then((v) => v.length), 
-        await dirTree.getDirNames()
+        await dirTree.getDirNames("Iris_Notes").then((v) => v.length), 
+        await dirTree.getDirNames("Iris_Notes")
     );
+
+    dirTreeListeners.parentFolderListener();
 } 
 invoke();
-
-
-//const childFolder
-//const childFile
-//const rootFolderChild
