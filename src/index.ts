@@ -1,4 +1,7 @@
 import { fs } from '@tauri-apps/api'
+import { isFile, isDirectory } from './is.js'
+import { getCanonicalPath } from './get-canonical-path.js'
+
 import { app, fileDirectoryBg, fileDirectoryTreeNode } from './dom-nodes.js'
 
 import './styles/style.css'
@@ -118,20 +121,19 @@ class DirectoryTree {
 
             const ctTextNode: Text = document.createTextNode(dirPropName[i]);
             childTree.appendChild(ctTextNode);
-
-            //const parentNodeT: HTMLDivElement = document.querySelector('.parent-folder-of-root');
-
+            
             parentTags.appendChild(childTree);
             
             //need to check if child is a directory folder or a file
+            //and set class attribute accordingly
         }
     }
 
-    /*
     public isChildFolder(): boolean {
         return;
     }
 
+    /*
     public isRootChildFile(): boolean {
         return;
     }
@@ -213,8 +215,6 @@ class DirectoryTreeListeners extends DirectoryTree {
                         //log
                         console.log(await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length));
 
-                        //console.log(getParentTags[i].getElementsByClassName('child-of-parent-folder'));
-
                         //log
                         console.log('parent active');
                     //if parent tag is inactive (does not have 'is-active-parent' class)
@@ -235,7 +235,7 @@ class DirectoryTreeListeners extends DirectoryTree {
 }
 
 //invoke 
-async function invoke(): Promise<void> {
+async function invokeF(): Promise<void> {
     //create DirectoryTree object
     const dirTree = new DirectoryTree();
 
@@ -259,5 +259,14 @@ async function invoke(): Promise<void> {
     */
 
     dirTreeListeners.parentFolderListener("Iris_Notes_Test/");
+
+    //testing is file
+    await isFile("desktop", "Iris_Notes_Test/Sample Notes/Test.md").then((v) => console.log("is file: " + v));
+
+    //testing is dir
+    await isDirectory("desktop", "Iris_Notes_Test/Sample Notes").then((v) => console.log("is directory: " + v));
+
+    //testing get canonical path
+    await getCanonicalPath("Iris_Notes_Test/Sample Notes").then((v) => console.log(v));
 } 
-invoke();
+invokeF();

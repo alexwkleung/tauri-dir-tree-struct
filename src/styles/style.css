@@ -13,6 +13,14 @@ body {
     color: white;
 }
 
+.parent-folder-of-root:hover {
+    cursor: pointer;
+}
+
 .child-of-parent-folder {
     color: grey;
+}
+
+.child-of-parent-folder:hover {
+    cursor: pointer;
 }
