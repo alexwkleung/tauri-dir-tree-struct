@@ -61,7 +61,7 @@ pub fn is_directory(base_dir: String, dir: String) -> bool {
     let directory_path: String;
     let path: &Path;
 
-    let mut is_directory_bool: bool = false;
+    let mut _is_directory_bool: bool = false;
 
     if base_dir == "desktop" && dir_vec(String::from("desktop")) {
         //create current directory to look in
@@ -81,7 +81,7 @@ pub fn is_directory(base_dir: String, dir: String) -> bool {
         //create a new path using the reference of directory_path
         path = Path::new(&directory_path);
 
-        is_directory_bool = path.is_dir();
+        _is_directory_bool = path.is_dir();
     } else if base_dir == "home" && dir_vec(String::from("home")) {
         //create current directory to look in
         current_dir = String::from(
@@ -100,13 +100,13 @@ pub fn is_directory(base_dir: String, dir: String) -> bool {
         //create a new path using the reference of directory_path
         path = Path::new(&directory_path);
 
-        is_directory_bool = path.is_dir();
+        _is_directory_bool = path.is_dir();
     } else {
-        is_directory_bool = false;
+        _is_directory_bool = false;
     }
 
     //return boolean value if path is a directory (folder)
-    return is_directory_bool;
+    return _is_directory_bool;
 
     //https://stackoverflow.com/questions/71566768/path-always-returning-false-when-trying-to-manually-put-a-path-with-rust
     //https://stackoverflow.com/questions/30511331/getting-the-absolute-path-from-a-pathbuf
