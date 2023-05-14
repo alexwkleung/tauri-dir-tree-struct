@@ -1,21 +1,31 @@
 body {
     background-color: ivory;
+    
+    /* no scroll on x and y axis */
+    overflow: hidden;
+
+    /* fix margin */
+    margin: 0 auto;
 }
 
-/*
 #file-directory-bg {
     width: 320px;
-    height: 100vh;
-    max-height: 100vh;
+    max-height: 90vh;
     background-color: #2c2b2b;
+    position: fixed;
 }
-*/
 
 #file-directory-tree {
+    border: 1px solid black; 
+
     width: 320px;
-    height: 100vh;
-    max-height: 100vh;
-    background-color: #2c2b2b;
+    height: 90vh;
+
+    overflow-y: scroll;
+
+    /* ux purposes */
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /*
@@ -27,7 +37,6 @@ body {
 .parent-folder-name {
     color: white;
 }
-
 .parent-folder-name:hover {
     cursor: pointer
 }
@@ -39,7 +48,6 @@ body {
 .child-of-parent-folder {
     color: grey;
 }
-
 .child-of-parent-folder:hover {
     cursor: pointer;
 }
@@ -47,7 +55,6 @@ body {
 .child-of-root-folder {
     color: grey;
 }
-
 .child-of-root-folder:hover {
     cursor: pointer;
 }

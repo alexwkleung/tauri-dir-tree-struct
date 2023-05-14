@@ -1,5 +1,5 @@
 import { fs } from '@tauri-apps/api'
-import { app, fileDirectoryTreeNode } from './dom-nodes.js'
+import { app, fileDirectoryBg, fileDirectoryTreeNode } from './dom-nodes.js'
 import { isFile, isDirectory } from './is.js'
 
 import './styles/style.css'
@@ -8,9 +8,12 @@ import './styles/style.css'
 app.setAttribute("id", "app");
 document.body.prepend(app);
 
+fileDirectoryBg.setAttribute("id", "file-directory-bg");
+app.appendChild(fileDirectoryBg);
+
 //file directory tree node
 fileDirectoryTreeNode.setAttribute("id", "file-directory-tree");
-app.appendChild(fileDirectoryTreeNode);
+fileDirectoryBg.appendChild(fileDirectoryTreeNode);
 
 /**
  * fReadDir function
@@ -241,7 +244,7 @@ class DirectoryTreeListeners extends DirectoryTree {
 
         console.log(getParentTags.length);
         console.log(getParentNameTags.length);
-        
+
         //for all parent tags
         for(let i = 0; i < getParentTags.length; i++) {     
             //when any parent tag (folder) is clicked
