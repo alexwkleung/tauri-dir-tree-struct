@@ -101,6 +101,8 @@ pub fn is_directory(base_dir: String, dir: String) -> bool {
         path = Path::new(&directory_path);
 
         is_directory_bool = path.is_dir();
+    } else {
+        is_directory_bool = false;
     }
 
     //return boolean value if path is a directory (folder)
