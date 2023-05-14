@@ -18,8 +18,18 @@ body {
     background-color: #2c2b2b;
 }
 
+/*
 .parent-of-root-folder {
     color: white;
+}
+*/
+
+.parent-folder-name {
+    color: white;
+}
+
+.parent-folder-name:hover {
+    cursor: pointer
 }
 
 .parent-of-root-folder:hover {

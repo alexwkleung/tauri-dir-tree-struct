@@ -105,13 +105,16 @@ class DirectoryTree {
                     if(v) {
                         //create parent folder node
                         const parentFolder: HTMLDivElement = document.createElement('div');
-
                         parentFolder.setAttribute("class", "parent-of-root-folder");
                         fileDirectoryTreeNode.appendChild(parentFolder);
 
+                        const parentFolderName: HTMLDivElement = document.createElement('div');
+                        parentFolderName.setAttribute("class", "parent-folder-name");
+                        parentFolder.appendChild(parentFolderName);
+
                         //create text node based on directory name
                         const pfTextNode: Text = document.createTextNode(dirPropName[i]);
-                        parentFolder.appendChild(pfTextNode);
+                        parentFolderName.appendChild(pfTextNode);
                     //if isRootParentFolder returns false
                     } else if(!v) {
                         Promise.resolve(this.isRootParentFile("desktop", "Iris_Notes_Test/" + dirPropName[i])).then((
@@ -220,6 +223,8 @@ class DirectoryTreeListeners extends DirectoryTree {
     public parentFolderListener(dir: string) {
         const getParentTags: HTMLCollectionOf<Element> = fileDirectoryTreeNode.getElementsByClassName('parent-of-root-folder');
 
+        const getParentNameTags: HTMLCollectionOf<Element> = fileDirectoryTreeNode.getElementsByClassName('parent-folder-name');
+        
         //log
         //console.log(getParentTags);
 
@@ -234,43 +239,43 @@ class DirectoryTreeListeners extends DirectoryTree {
         //log
         //console.log(parentTagsArr);
 
+        console.log(getParentTags.length);
+        console.log(getParentNameTags.length);
+        
         //for all parent tags
         for(let i = 0; i < getParentTags.length; i++) {     
             //when any parent tag (folder) is clicked
-            getParentTags[i].addEventListener('click', async () => {
-                //select every parent div with class 'parent-folder-of-root'  
-                if(getParentTags[i].querySelectorAll('.parent-of-root-folder')) {
-                    //toggle the `is-active-parent` class when parent tag is clicked
-                    getParentTags[i].classList.toggle('is-active-parent');
+            getParentNameTags[i].addEventListener('click', async () => {
+                //toggle the `is-active-parent` class when parent tag is clicked
+                getParentTags[i].classList.toggle('is-active-parent');
 
-                    //check if parent tag is active (has 'is-active-parent' class)
-                    if(getParentTags[i].classList.contains('is-active-parent')) {
-                        //log
-                        //console.log("Iris_Notes_Test" + "/" + parentTagsArr[i]);
+                //check if parent tag is active (has 'is-active-parent' class)
+                if(getParentTags[i].classList.contains('is-active-parent')) {
+                    //log
+                    //console.log("Iris_Notes_Test" + "/" + parentTagsArr[i]);
 
-                        //append the children of the clicked parent folder
-                        this.createDirTreeChildNodes(
-                            await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length).catch(
-                                (e) => { throw console.error(e) }
-                            ), 
-                            await this.getDirNames(dir + parentTagsArr[i]),
-                            getParentTags[i]
-                        );
+                    //append the children of the clicked parent folder
+                    this.createDirTreeChildNodes(
+                        await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length).catch(
+                            (e) => { throw console.error(e) }
+                        ), 
+                        await this.getDirNames(dir + parentTagsArr[i]),
+                        getParentTags[i]
+                    );
 
-                        //log
-                        //console.log(await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length));
-                        //console.log(await this.getDirNames(dir + parentTagsArr[i]).then((v) => v));
+                    //log
+                    //console.log(await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length));
+                    //console.log(await this.getDirNames(dir + parentTagsArr[i]).then((v) => v));
 
-                        //log
-                        console.log('parent active');
-                    //if parent tag is inactive (does not have 'is-active-parent' class)
-                    } else if(!getParentTags[i].classList.contains('is-active-parent')) {
-                        //remove the children of the parent folder from the dom
-                        getParentTags[i].querySelectorAll('.child-of-parent-folder').forEach((v) => v.remove());
+                    //log
+                    console.log('parent active');
+                //if parent tag is inactive (does not have 'is-active-parent' class)
+                } else if(!getParentTags[i].classList.contains('is-active-parent')) {
+                    //remove the children of the parent folder from the dom
+                    getParentTags[i].querySelectorAll('.child-of-parent-folder').forEach((v) => v.remove());
 
-                        //log
-                        console.log('parent inactive');
-                    }
+                    //log
+                    console.log('parent inactive');
                 }
 
                 //log
