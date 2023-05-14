@@ -102,7 +102,7 @@ class DirectoryTree {
             //const canonical: string | unknown = await getCanonicalPath("Iris_Notes_Test/" + dirPropName[i]).then((v) => v);
             //console.log(canonical);
 
-            await this.isRootParentFolder("desktop", "Iris_Notes_Test/" + dirPropName[i]).then(
+            await this.isFolderNode("desktop", "Iris_Notes_Test/" + dirPropName[i]).then(
                 (v) => {
                     //if isRootParentFolder returns true
                     if(v) {
@@ -120,18 +120,18 @@ class DirectoryTree {
                         parentFolderName.appendChild(pfTextNode);
                     //if isRootParentFolder returns false
                     } else if(!v) {
-                        Promise.resolve(this.isRootParentFile("desktop", "Iris_Notes_Test/" + dirPropName[i])).then((
+                        Promise.resolve(this.isFileNode("desktop", "Iris_Notes_Test/" + dirPropName[i])).then((
                             (vv) => {
                                 if(vv) {
                                     //create parent folder node
-                                    const parentFolder: HTMLDivElement = document.createElement('div');
+                                    const childParentFolder: HTMLDivElement = document.createElement('div');
 
-                                    parentFolder.setAttribute("class", "child-of-root-folder");
-                                    fileDirectoryTreeNode.appendChild(parentFolder);
+                                    childParentFolder.setAttribute("class", "child-of-root-folder");
+                                    fileDirectoryTreeNode.appendChild(childParentFolder);
 
                                     //create text node based on directory name
                                     const pfTextNode: Text = document.createTextNode(dirPropName[i]);
-                                    parentFolder.appendChild(pfTextNode);
+                                    childParentFolder.appendChild(pfTextNode);
                                 }
                             }
                         )).catch((e) => {
@@ -148,44 +148,59 @@ class DirectoryTree {
     /**
      * createDirTreeChildNodes
      * 
+     * @async 
      * @param numberOfChildNodes The number of child nodes to be created 
      * @param dirPropName The directory property names (folders, files)
      * @param parentTags The parent tag to append to (based on clicked parent)
      */
-    public createDirTreeChildNodes(numberOfChildNodes: number, dirPropName: string[], parentTags: Element) {
+    public async createDirTreeChildNodes(
+        numberOfChildNodes: number, 
+        dirPropName: string[], 
+        parentTags: Element, 
+        parentNameTags: string) {
         for(let i = 0; i < numberOfChildNodes; i++) {
-            const childTree: HTMLDivElement = document.createElement('div');
-            childTree.setAttribute("class", "child-of-parent-folder");
+            //console.log(dirPropName[i]);
+            //console.log(parentTags + dirPropName[i]);
 
-            const ctTextNode: Text = document.createTextNode(dirPropName[i]);
-            childTree.appendChild(ctTextNode);
-            
-            parentTags.appendChild(childTree);
-            
-            //need to check if child is a directory folder or a file
-            //and set class attribute accordingly
+            console.log(parentNameTags + "/" + dirPropName[i]);
+            await this.isFolderNode(
+                "desktop", 
+                "Iris_Notes_Test/" + parentNameTags /* depth of 1 from root */ + "/" + dirPropName[i]
+            ).then((v) => {
+                if(v) {
+                    console.log(v);
+                    const childTree: HTMLDivElement = document.createElement('div');
+                    childTree.setAttribute("class", "child-folder-of-parent-root");
+        
+                    const ctTextNode: Text = document.createTextNode(dirPropName[i]);
+                    childTree.appendChild(ctTextNode);
+                    
+                    //append to passed parent node
+                    parentTags.appendChild(childTree);
+                } else if(!v) {
+                    console.log(v);
+                    const childTree: HTMLDivElement = document.createElement('div');
+                    childTree.setAttribute("class", "child-file-of-parent-root");
+        
+                    const ctTextNode: Text = document.createTextNode(dirPropName[i]);
+                    childTree.appendChild(ctTextNode);
+                    
+                    //append to passed parent node
+                    parentTags.appendChild(childTree);
+                }
+            });
         }
     }
 
-    public async isRootParentFolder(baseDir: string, dirPropName: string): Promise<unknown> {
+    public async isFolderNode(baseDir: string, dirPropName: string): Promise<unknown> {
         //log
         //console.log(await isDirectory(baseDir, dirPropName).then((v) => v))
         return await isDirectory(baseDir, dirPropName).then((v) => v).catch((e) => { throw console.error(e) });
     }
 
-    public async isRootParentFile(baseDir: string, dirPropName: string): Promise<unknown> {
+    public async isFileNode(baseDir: string, dirPropName: string): Promise<unknown> {
         return await isFile(baseDir, dirPropName).then((v) => v).catch((e) => { throw console.error(e) });
     }
-
-    /*
-    public isChildFolder(): boolean {
-        return;
-    }
-
-    public isRootChildFile(): boolean {
-        return;
-    }
-    */
 
     /**
      * getDirNames
@@ -215,16 +230,10 @@ class DirectoryTree {
 
         return directoryNames;
     }
-
-    /*
-    public createDirectoryTree() {
-
-    }
-    */
 }
 
 class DirectoryTreeListeners extends DirectoryTree {
-    public parentFolderListener(dir: string) {
+    public parentRootListener(dir: string) {
         const getParentTags: HTMLCollectionOf<Element> = fileDirectoryTreeNode.getElementsByClassName('parent-of-root-folder');
 
         const getParentNameTags: HTMLCollectionOf<Element> = fileDirectoryTreeNode.getElementsByClassName('parent-folder-name');
@@ -240,16 +249,23 @@ class DirectoryTreeListeners extends DirectoryTree {
             parentTagsArr.push(getParentTags[i].textContent);
         }
 
+        const parentNameTagsArr: string[] = [];
+
+        for(let i = 0; i < getParentNameTags.length; i++) {
+            parentNameTagsArr.push(getParentNameTags[i].textContent);
+        }
+
         //log
         //console.log(parentTagsArr);
 
-        console.log(getParentTags.length);
-        console.log(getParentNameTags.length);
+        //console.log(getParentTags.length);
+        //console.log(getParentNameTags.length);
 
         //for all parent tags
-        for(let i = 0; i < getParentTags.length; i++) {     
+        for(let i = 0; i < getParentTags.length; i++) {    
             //when any parent tag (folder) is clicked
             getParentNameTags[i].addEventListener('click', async () => {
+                console.log(parentNameTagsArr[i]);
                 //toggle the `is-active-parent` class when parent tag is clicked
                 getParentTags[i].classList.toggle('is-active-parent');
 
@@ -264,7 +280,8 @@ class DirectoryTreeListeners extends DirectoryTree {
                             (e) => { throw console.error(e) }
                         ), 
                         await this.getDirNames(dir + parentTagsArr[i]),
-                        getParentTags[i]
+                        getParentTags[i],
+                        parentNameTagsArr[i]
                     );
 
                     //log
@@ -272,11 +289,14 @@ class DirectoryTreeListeners extends DirectoryTree {
                     //console.log(await this.getDirNames(dir + parentTagsArr[i]).then((v) => v));
 
                     //log
-                    console.log('parent active');
+                    //console.log('parent active');
                 //if parent tag is inactive (does not have 'is-active-parent' class)
                 } else if(!getParentTags[i].classList.contains('is-active-parent')) {
-                    //remove the children of the parent folder from the dom
-                    getParentTags[i].querySelectorAll('.child-of-parent-folder').forEach((v) => v.remove());
+                    //remove the children files of the parent folder from the dom
+                    getParentTags[i].querySelectorAll('.child-file-of-parent-root').forEach((v) => v.remove());
+
+                    //remove children folders of the parent folder from the dom
+                    getParentTags[i].querySelectorAll('.child-folder-of-parent-root').forEach((v) => v.remove());
 
                     //log
                     //console.log('parent inactive');
@@ -287,13 +307,15 @@ class DirectoryTreeListeners extends DirectoryTree {
             });
         }   
     }
+
+    public childNodeListener() {
+        return;
+    }
 }
 
 //invoke 
 async function invokeF(): Promise<void> {
-    //create DirectoryTree object
     const dirTree = new DirectoryTree();
-
     const dirTreeListeners = new DirectoryTreeListeners();
     
     //log
@@ -314,7 +336,7 @@ async function invokeF(): Promise<void> {
     ));
     */
 
-    dirTreeListeners.parentFolderListener("Iris_Notes_Test/");
+    dirTreeListeners.parentRootListener("Iris_Notes_Test/");
 
     //testing get canonical path
     //await getCanonicalPath("Iris_Notes_Test/Sample Notes").then((v) => console.log(v));
