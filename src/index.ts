@@ -198,8 +198,9 @@ class DirectoryTree {
         const directoryNames: string[] = [];
 
         //get directory (folder) names
-        const propRes: number[] = await fDirProps(fReadDir(dir), "name").then(
-            (v) => v.map((elem: any) => directoryNamesTemp.push(elem))
+        /*const propRes: number[] = */
+        await fDirProps(fReadDir(dir), "name").then(
+            (v) => v.map((elem) => directoryNamesTemp.push(elem as string))
         ).catch((e) => e);
     
         for(let i = 0; i < directoryNamesTemp.length; i++) {
@@ -278,11 +279,11 @@ class DirectoryTreeListeners extends DirectoryTree {
                     getParentTags[i].querySelectorAll('.child-of-parent-folder').forEach((v) => v.remove());
 
                     //log
-                    console.log('parent inactive');
+                    //console.log('parent inactive');
                 }
 
                 //log
-                console.log("clicked on parent folder!");
+                //console.log("clicked on parent folder!");
             });
         }   
     }
