@@ -1,6 +1,6 @@
 import { fs, invoke } from '@tauri-apps/api'
 import { app, fileDirectoryBg, fileDirectoryTreeNode } from './dom-nodes.js'
-import { isFile, isDirectory } from './is.js'
+import { isFile, isDirectory, isDirectoryCanonical, isFileCanonical } from './is.js'
 
 import './styles/style.css'
 
@@ -346,13 +346,9 @@ async function invokeF(): Promise<void> {
 
     await invoke('is_file_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
 
-    await invoke('is_folder_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
+    await invoke('is_directory_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
 
-    //testing nested invoke with getting canonical path and checking if its a folder
-    await invoke('get_canonical_path', { dir: "Iris_Notes_Test" }).then(
-        async (v) => {
-            await invoke('is_folder_canonical', { canonical_path: v }).then((vv) => console.log("Is folder canonical?: " + vv));
-        }
-    );
+    await isDirectoryCanonical("Iris_Notes_Test").then((v) => console.log("is canonical path a directory?: " + v));
+    await isFileCanonical("Iris_Notes_Test/test.md").then((v) => console.log("is canonical path a file? " + v));
 } 
 invokeF();

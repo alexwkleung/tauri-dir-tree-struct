@@ -120,7 +120,7 @@ pub fn is_file_canonical(canonical_path: String) -> bool {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn is_folder_canonical(canonical_path: String) -> bool {
+pub fn is_directory_canonical(canonical_path: String) -> bool {
     let path: &Path = Path::new(&canonical_path);
 
     return path.is_dir();
