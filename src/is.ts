@@ -8,7 +8,7 @@ import { invoke } from "@tauri-apps/api"
 export async function isFile(baseDir: string, fileDir: string): Promise<unknown> {
     const isFile: boolean | unknown = await invoke(
         "is_file", { base_dir: baseDir, file_dir: fileDir }
-    ).then((v) => v);
+    ).then((v) => v).catch((e) => { throw console.error(e) });
 
     return isFile;
 }
@@ -22,7 +22,7 @@ export async function isFile(baseDir: string, fileDir: string): Promise<unknown>
 export async function isDirectory(baseDir: string, dir: string): Promise<unknown> {
     const isDirectory: boolean | unknown = await invoke(
         "is_directory", { base_dir: baseDir, dir: dir }
-    ).then((v) => v);
+    ).then((v) => v).catch((e) => { throw console.error(e) });
 
     return isDirectory;
 }

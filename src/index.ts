@@ -250,7 +250,9 @@ class DirectoryTreeListeners extends DirectoryTree {
 
                         //append the children of the clicked parent folder
                         this.createDirTreeChildNodes(
-                            await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length), 
+                            await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length).catch(
+                                (e) => { throw console.error(e) }
+                            ), 
                             await this.getDirNames(dir + parentTagsArr[i]),
                             getParentTags[i]
                         );

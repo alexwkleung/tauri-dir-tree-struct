@@ -13,11 +13,9 @@ export async function getCanonicalPath(dir: string): Promise<unknown> {
         (v) => {
             if(v) {
                 return v;    
-            } else if (!v){
-                throw console.error(v);
             }
         }
-    );
+    ).catch((e) => { throw console.error(e) });
 
     return canonicalPath;
 }

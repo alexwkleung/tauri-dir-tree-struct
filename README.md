@@ -1,6 +1,6 @@
 # tauri-dir-tree-struct
 
-An isolated playground to create a directory tree structure using Tauri (WIP).
+A playground to create a directory tree structure using Tauri (WIP). Written in TypeScript and Rust.
 
 Mainly intended to be used in [Iris](https://github.com/alexwkleung/Iris) as a rewrite for the file directory tree.
 
