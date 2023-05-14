@@ -338,7 +338,7 @@ async function invokeF(): Promise<void> {
     //testing get canonical path
     //await getCanonicalPath("Iris_Notes_Test/Sample Notes").then((v) => console.log(v));
 
-    await invoke('walk').then((v) => console.log(v));
+    await invoke('walk', { dir: "/Iris_Notes_Test/"}).then((v) => console.log(v));
 
     await fReadDir("Iris_Notes_Test").then((v) => console.log(v));
 

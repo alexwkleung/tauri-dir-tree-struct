@@ -42,7 +42,7 @@ export async function isFileCanonical(dirOfFile: string) {
         async (v) => {
             return await invoke('is_file_canonical', { canonical_path: v }).then(
                 (vv) => vv
-            ).catch((e) => { throw console.error(e)});
+            ).catch((e) => { throw console.error(e) });
         }
     )
 }

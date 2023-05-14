@@ -3,13 +3,14 @@ use std::path::{Path, PathBuf};
 use std::vec::Vec;
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn walk() -> Vec<String> {
-    let current_dir = String::from(
+pub fn walk(dir: String) -> Vec<String> {
+    let base_dir: String = String::from(
         dirs::desktop_dir()
         .unwrap()
         .to_string_lossy()
-        + "/Iris_Notes_Test/"
     );
+
+    let current_dir: String = base_dir + &dir;
 
     let path: &Path = Path::new(&current_dir);
 
