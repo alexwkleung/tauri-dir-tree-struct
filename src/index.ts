@@ -1,4 +1,4 @@
-import { fs } from '@tauri-apps/api'
+import { fs, invoke } from '@tauri-apps/api'
 import { app, fileDirectoryBg, fileDirectoryTreeNode } from './dom-nodes.js'
 import { isFile, isDirectory } from './is.js'
 
@@ -22,7 +22,7 @@ fileDirectoryBg.appendChild(fileDirectoryTreeNode);
  * @param dir The directory to read from
  * @returns An array containing file entries from the read directory
  */
-async function fReadDir(dir: string): Promise<fs.FileEntry[]>  {
+export async function fReadDir(dir: string): Promise<fs.FileEntry[]>  {
     const readDir: fs.FileEntry[] = await fs.readDir(dir, {
         dir: fs.BaseDirectory.Desktop,
         recursive: true
@@ -41,7 +41,7 @@ async function fReadDir(dir: string): Promise<fs.FileEntry[]>  {
  * @param propType The directory property type to be returned
  * @returns The directory children, name, or path
  */
-function fDirProps(
+export function fDirProps(
     readDir: Promise<fs.FileEntry[]>, 
     propType: string
     ): Promise<(fs.FileEntry[] | undefined)[]> | Promise<(string | undefined)[]> | undefined {    
@@ -89,7 +89,7 @@ function fDirProps(
 //console.log(fDirProps(fReadDir("Iris_Notes/Sample Notes"), "name"));
 //console.log(fDirProps(fReadDir("Iris_Notes"), "path"));
 
-class DirectoryTree {
+export class DirectoryTree {
     /**
      * createDirTreeParentNodes
      * 
@@ -99,9 +99,6 @@ class DirectoryTree {
      */
     public async createDirTreeParentNodes(numberOfParentNodes: number, dirPropName: string[]) {            
         for(let i = 0; i < numberOfParentNodes; i++) {
-            //const canonical: string | unknown = await getCanonicalPath("Iris_Notes_Test/" + dirPropName[i]).then((v) => v);
-            //console.log(canonical);
-
             await this.isFolderNode("desktop", "Iris_Notes_Test/" + dirPropName[i]).then(
                 (v) => {
                     //if isRootParentFolder returns true
@@ -124,14 +121,14 @@ class DirectoryTree {
                             (vv) => {
                                 if(vv) {
                                     //create parent folder node
-                                    const childParentFolder: HTMLDivElement = document.createElement('div');
+                                    const childFileRoot: HTMLDivElement = document.createElement('div');
 
-                                    childParentFolder.setAttribute("class", "child-of-root-folder");
-                                    fileDirectoryTreeNode.appendChild(childParentFolder);
+                                    childFileRoot.setAttribute("class", "child-of-root-folder");
+                                    fileDirectoryTreeNode.appendChild(childFileRoot);
 
                                     //create text node based on directory name
                                     const pfTextNode: Text = document.createTextNode(dirPropName[i]);
-                                    childParentFolder.appendChild(pfTextNode);
+                                    childFileRoot.appendChild(pfTextNode);
                                 }
                             }
                         )).catch((e) => {
@@ -169,24 +166,24 @@ class DirectoryTree {
             ).then((v) => {
                 if(v) {
                     console.log(v);
-                    const childTree: HTMLDivElement = document.createElement('div');
-                    childTree.setAttribute("class", "child-folder-of-parent-root");
+                    const childFolder: HTMLDivElement = document.createElement('div');
+                    childFolder.setAttribute("class", "child-folder-of-parent-root");
         
                     const ctTextNode: Text = document.createTextNode(dirPropName[i]);
-                    childTree.appendChild(ctTextNode);
+                    childFolder.appendChild(ctTextNode);
                     
                     //append to passed parent node
-                    parentTags.appendChild(childTree);
+                    parentTags.appendChild(childFolder);
                 } else if(!v) {
                     console.log(v);
-                    const childTree: HTMLDivElement = document.createElement('div');
-                    childTree.setAttribute("class", "child-file-of-parent-root");
+                    const childFile: HTMLDivElement = document.createElement('div');
+                    childFile.setAttribute("class", "child-file-of-parent-root");
         
                     const ctTextNode: Text = document.createTextNode(dirPropName[i]);
-                    childTree.appendChild(ctTextNode);
+                    childFile.appendChild(ctTextNode);
                     
                     //append to passed parent node
-                    parentTags.appendChild(childTree);
+                    parentTags.appendChild(childFile);
                 }
             });
         }
@@ -232,7 +229,7 @@ class DirectoryTree {
     }
 }
 
-class DirectoryTreeListeners extends DirectoryTree {
+export class DirectoryTreeListeners extends DirectoryTree {
     public parentRootListener(dir: string) {
         const getParentTags: HTMLCollectionOf<Element> = fileDirectoryTreeNode.getElementsByClassName('parent-of-root-folder');
 
@@ -340,5 +337,22 @@ async function invokeF(): Promise<void> {
 
     //testing get canonical path
     //await getCanonicalPath("Iris_Notes_Test/Sample Notes").then((v) => console.log(v));
+
+    await invoke('walk').then((v) => console.log(v));
+
+    await fReadDir("Iris_Notes_Test").then((v) => console.log(v));
+
+    await invoke('is_file', { base_dir: "desktop", file_dir: "Iris_Notes_Test/test.md" }).then((v) => console.log(typeof v))
+
+    await invoke('is_file_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
+
+    await invoke('is_folder_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
+
+    //testing nested invoke with getting canonical path and checking if its a folder
+    await invoke('get_canonical_path', { dir: "Iris_Notes_Test" }).then(
+        async (v) => {
+            await invoke('is_folder_canonical', { canonical_path: v }).then((vv) => console.log("Is folder canonical?: " + vv));
+        }
+    );
 } 
 invokeF();
