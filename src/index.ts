@@ -1,6 +1,9 @@
 import { fs, invoke } from '@tauri-apps/api'
 import { app, fileDirectoryBg, fileDirectoryTreeNode } from './dom-nodes.js'
 import { isFile, isDirectory, isDirectoryCanonical, isFileCanonical } from './is.js'
+import { walk } from './walkdir.js'
+import { getFileName, getDirectoryName } from './file.js'
+import { getCanonicalPath } from './get-canonical-path.js'
 
 import './styles/style.css'
 
@@ -155,17 +158,25 @@ export class DirectoryTree {
         dirPropName: string[], 
         parentTags: Element, 
         parentNameTags: string) {
+
+        let walkRef: string[] = [];
+
+        await walk("/Iris_Notes_Test/" + parentNameTags).then((v) => walkRef = v as string[]);
+
+        console.log("walkRef: " + walkRef);
+        
         for(let i = 0; i < numberOfChildNodes; i++) {
             //console.log(dirPropName[i]);
             //console.log(parentTags + dirPropName[i]);
 
-            console.log(parentNameTags + "/" + dirPropName[i]);
+            //console.log(parentNameTags + "/" + dirPropName[i]);
+
             await this.isFolderNode(
                 "desktop", 
-                "Iris_Notes_Test/" + parentNameTags /* depth of 1 from root */ + "/" + dirPropName[i]
+                "Iris_Notes_Test/" + parentNameTags + "/" + dirPropName[i]
             ).then((v) => {
                 if(v) {
-                    console.log(v);
+                    //console.log(v);
                     const childFolder: HTMLDivElement = document.createElement('div');
                     childFolder.setAttribute("class", "child-folder-of-parent-root");
         
@@ -175,7 +186,7 @@ export class DirectoryTree {
                     //append to passed parent node
                     parentTags.appendChild(childFolder);
                 } else if(!v) {
-                    console.log(v);
+                    //console.log(v);
                     const childFile: HTMLDivElement = document.createElement('div');
                     childFile.setAttribute("class", "child-file-of-parent-root");
         
@@ -192,11 +203,15 @@ export class DirectoryTree {
     public async isFolderNode(baseDir: string, dirPropName: string): Promise<unknown> {
         //log
         //console.log(await isDirectory(baseDir, dirPropName).then((v) => v))
-        return await isDirectory(baseDir, dirPropName).then((v) => v).catch((e) => { throw console.error(e) });
+        return await isDirectory(baseDir, dirPropName).then(
+            (v) => v
+        ).catch((e) => { throw console.error(e) });
     }
 
     public async isFileNode(baseDir: string, dirPropName: string): Promise<unknown> {
-        return await isFile(baseDir, dirPropName).then((v) => v).catch((e) => { throw console.error(e) });
+        return await isFile(baseDir, dirPropName).then(
+            (v) => v
+        ).catch((e) => { throw console.error(e) });
     }
 
     /**
@@ -262,7 +277,8 @@ export class DirectoryTreeListeners extends DirectoryTree {
         for(let i = 0; i < getParentTags.length; i++) {    
             //when any parent tag (folder) is clicked
             getParentNameTags[i].addEventListener('click', async () => {
-                console.log(parentNameTagsArr[i]);
+                //console.log(parentNameTagsArr[i]);
+
                 //toggle the `is-active-parent` class when parent tag is clicked
                 getParentTags[i].classList.toggle('is-active-parent');
 
@@ -336,9 +352,9 @@ async function invokeF(): Promise<void> {
     dirTreeListeners.parentRootListener("Iris_Notes_Test/");
 
     //testing get canonical path
-    //await getCanonicalPath("Iris_Notes_Test/Sample Notes").then((v) => console.log(v));
+    await getCanonicalPath("/Users/alex/Desktop/Iris_Notes_Test/Sample Notes").then((v) => console.log(v));
 
-    await invoke('walk', { dir: "/Iris_Notes_Test/"}).then((v) => console.log(v));
+    //await invoke('walk', { dir: "/Iris_Notes_Test"}).then((v) => console.log(v));
 
     await fReadDir("Iris_Notes_Test").then((v) => console.log(v));
 
@@ -350,5 +366,23 @@ async function invokeF(): Promise<void> {
 
     await isDirectoryCanonical("Iris_Notes_Test").then((v) => console.log("is canonical path a directory?: " + v));
     await isFileCanonical("Iris_Notes_Test/test.md").then((v) => console.log("is canonical path a file? " + v));
+
+    //await walk("/Iris_Notes_Test").then((v) => console.log(v));
+
+    let walkRef: string[] = [];
+
+    await walk("/Users/alex/Desktop/Iris_Notes_Test/").then((v) => walkRef = v as string[]);
+
+    console.log(walkRef);
+
+    //await invoke('get_file_name', { dir: "Users/alex/Desktop/Iris_Notes_Test/test.md" }).then((v) => console.log(v));
+
+    //await invoke('get_directory_name', { dir: "/Users/alex/Desktop/Iris_Notes_Test/test.md" }).then((v) => console.log(v));
+
+    await getFileName("Users/alex/Desktop/Iris_Notes_Test/test.md").then((v) => console.log(v));
+
+    await getDirectoryName("Users/alex/Desktop/Iris_Notes_Test/test.md").then((v) => console.log(v));
+
+    //await dirTree.isFileNode("/Users/alex/Desktop/Iris_Notes_Test/test.md").then((v) => console.log(v));
 } 
 invokeF();

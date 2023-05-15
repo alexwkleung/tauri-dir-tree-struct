@@ -10,13 +10,25 @@ use app::{
   __cmd__get_canonical_path, 
   get_canonical_path::get_canonical_path,
   __cmd__walk,
-  walkdir::walk
+  walkdir::walk,
+  __cmd__get_file_name,
+  __cmd__get_directory_name,
+  file::{get_file_name, get_directory_name}
 };
 
 fn main() {
   tauri::Builder::default()
   //create invoke handler for tauri so functions can be invoked in front-end
-    .invoke_handler(tauri::generate_handler![is_file, is_directory, get_canonical_path, walk, is_file_canonical, is_directory_canonical])
+    .invoke_handler(tauri::generate_handler![
+      is_file, 
+      is_directory, 
+      get_canonical_path, 
+      walk, 
+      is_file_canonical, 
+      is_directory_canonical, 
+      get_file_name, 
+      get_directory_name
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
