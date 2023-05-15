@@ -4,6 +4,7 @@ import { isFile, isDirectory, isDirectoryCanonical, isFileCanonical } from './is
 import { walk } from './walkdir.js'
 import { getFileName, getDirectoryName } from './file.js'
 import { getCanonicalPath } from './get-canonical-path.js'
+import { baseDir } from './base-dir.js'
 
 import './styles/style.css'
 
@@ -154,17 +155,38 @@ export class DirectoryTree {
      * @param parentTags The parent tag to append to (based on clicked parent)
      */
     public async createDirTreeChildNodes(
-        numberOfChildNodes: number, 
-        dirPropName: string[], 
-        parentTags: Element, 
+        //numberOfChildNodes: number, 
+        //dirPropName: string[], 
+        //parentTags: Element, 
         parentNameTags: string) {
+
+        //note:
+        //1. parent nodes seem to work fine for now but might want to use walkdir on root instead of tauri readdir
+        //2. getting the parents' child directories/files is the issue
+        //3. need to recursively walk the clicked parent directory
+        //4. need to refactor this function and the the parent root listener
 
         let walkRef: string[] = [];
 
-        await walk("/Iris_Notes_Test/" + parentNameTags).then((v) => walkRef = v as string[]);
+        await walk(
+            await baseDir("desktop").then((v) => v) + "/Iris_Notes_Test/" + parentNameTags
+        ).then(
+            (v) => {
+                walkRef = v as string[]
+                
+                const first = walkRef.shift(); //remove parent folder since we only need the child (this might be changed later)
 
-        console.log("walkRef: " + walkRef);
+                //need to filter out .DS_Store as well (check walkddir docs to filter out '.')
+
+                walkRef.map(
+                    (v) => v !== first ? walkRef.push(v) : false
+                )
+            }
+        ).catch((v) => { throw console.error(v) });
+
+        console.log(walkRef);
         
+        /*
         for(let i = 0; i < numberOfChildNodes; i++) {
             //console.log(dirPropName[i]);
             //console.log(parentTags + dirPropName[i]);
@@ -198,6 +220,7 @@ export class DirectoryTree {
                 }
             });
         }
+        */
     }
 
     public async isFolderNode(baseDir: string, dirPropName: string): Promise<unknown> {
@@ -269,7 +292,7 @@ export class DirectoryTreeListeners extends DirectoryTree {
 
         //log
         //console.log(parentTagsArr);
-
+        console.log(parentNameTagsArr);
         //console.log(getParentTags.length);
         //console.log(getParentNameTags.length);
 
@@ -284,10 +307,12 @@ export class DirectoryTreeListeners extends DirectoryTree {
 
                 //check if parent tag is active (has 'is-active-parent' class)
                 if(getParentTags[i].classList.contains('is-active-parent')) {
+                    this.createDirTreeChildNodes(parentNameTagsArr[i]);
                     //log
                     //console.log("Iris_Notes_Test" + "/" + parentTagsArr[i]);
 
                     //append the children of the clicked parent folder
+                    /*
                     this.createDirTreeChildNodes(
                         await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length).catch(
                             (e) => { throw console.error(e) }
@@ -296,6 +321,7 @@ export class DirectoryTreeListeners extends DirectoryTree {
                         getParentTags[i],
                         parentNameTagsArr[i]
                     );
+                    */
 
                     //log
                     //console.log(await this.getDirNames(dir + parentTagsArr[i]).then((v) => v.length));
@@ -336,7 +362,8 @@ async function invokeF(): Promise<void> {
 
     await dirTree.createDirTreeParentNodes(
         await dirTree.getDirNames("Iris_Notes_Test").then(
-            (v) => v.length).catch((e) => { throw console.error(e) }), 
+            (v) => v.length
+        ).catch((e) => { throw console.error(e) }), 
         await dirTree.getDirNames("Iris_Notes_Test").catch((e) => { throw console.error(e) })
     );
 
@@ -352,37 +379,39 @@ async function invokeF(): Promise<void> {
     dirTreeListeners.parentRootListener("Iris_Notes_Test/");
 
     //testing get canonical path
-    await getCanonicalPath("/Users/alex/Desktop/Iris_Notes_Test/Sample Notes").then((v) => console.log(v));
+    //await getCanonicalPath("/Users/alex/Desktop/Iris_Notes_Test/Sample Notes").then((v) => console.log(v));
 
     //await invoke('walk', { dir: "/Iris_Notes_Test"}).then((v) => console.log(v));
 
-    await fReadDir("Iris_Notes_Test").then((v) => console.log(v));
+    //await fReadDir("Iris_Notes_Test").then((v) => console.log(v));
 
-    await invoke('is_file', { base_dir: "desktop", file_dir: "Iris_Notes_Test/test.md" }).then((v) => console.log(typeof v))
+    //await invoke('is_file', { base_dir: "desktop", file_dir: "Iris_Notes_Test/test.md" }).then((v) => console.log(typeof v))
 
-    await invoke('is_file_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
+    //await invoke('is_file_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
 
-    await invoke('is_directory_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
+    //await invoke('is_directory_canonical', { canonical_path: "/Users/alex/Desktop/Iris_Notes_Test/test.md"}).then((v) => console.log(v));
 
-    await isDirectoryCanonical("Iris_Notes_Test").then((v) => console.log("is canonical path a directory?: " + v));
-    await isFileCanonical("Iris_Notes_Test/test.md").then((v) => console.log("is canonical path a file? " + v));
+    //await isDirectoryCanonical("Iris_Notes_Test").then((v) => console.log("is canonical path a directory?: " + v));
+    //await isFileCanonical("Iris_Notes_Test/test.md").then((v) => console.log("is canonical path a file? " + v));
 
     //await walk("/Iris_Notes_Test").then((v) => console.log(v));
-
-    let walkRef: string[] = [];
-
-    await walk("/Users/alex/Desktop/Iris_Notes_Test/").then((v) => walkRef = v as string[]);
-
-    console.log(walkRef);
 
     //await invoke('get_file_name', { dir: "Users/alex/Desktop/Iris_Notes_Test/test.md" }).then((v) => console.log(v));
 
     //await invoke('get_directory_name', { dir: "/Users/alex/Desktop/Iris_Notes_Test/test.md" }).then((v) => console.log(v));
 
-    await getFileName("Users/alex/Desktop/Iris_Notes_Test/test.md").then((v) => console.log(v));
+    //await getFileName("Users/alex/Desktop/Iris_Notes_Test/test.md").then((v) => console.log(v));
 
-    await getDirectoryName("Users/alex/Desktop/Iris_Notes_Test/test.md").then((v) => console.log(v));
+    //await getDirectoryName("Users/alex/Desktop/Iris_Notes_Test/test.md").then((v) => console.log(v));
 
     //await dirTree.isFileNode("/Users/alex/Desktop/Iris_Notes_Test/test.md").then((v) => console.log(v));
+
+    let walkRef: string[] = [];
+
+    await walk("/Users/alex/Desktop/Iris_Notes_Test/Sample Notes").then((v) => walkRef = v as string[]);
+
+    console.log(walkRef);
+    
+
 } 
 invokeF();

@@ -13,7 +13,9 @@ use app::{
   walkdir::walk,
   __cmd__get_file_name,
   __cmd__get_directory_name,
-  file::{get_file_name, get_directory_name}
+  file::{get_file_name, get_directory_name},
+  __cmd__base_dir,
+  base_dir::base_dir
 };
 
 fn main() {
@@ -27,7 +29,8 @@ fn main() {
       is_file_canonical, 
       is_directory_canonical, 
       get_file_name, 
-      get_directory_name
+      get_directory_name,
+      base_dir
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

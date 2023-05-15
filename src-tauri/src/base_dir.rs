@@ -16,3 +16,24 @@ pub fn dir_vec(base_dir: String) -> bool {
 
     return _dir_vec_bool;
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn base_dir(base: String) -> String {
+    let mut dir: String = String::from("");
+
+    if base == "desktop" {
+        dir = String::from(
+            dirs::desktop_dir()
+            .unwrap()
+            .to_string_lossy()
+        );
+    } else if base == "home" {
+        dir = String::from(
+            dirs::home_dir()
+            .unwrap()
+            .to_string_lossy()
+        );
+    }
+
+    return dir;
+}
