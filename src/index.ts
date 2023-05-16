@@ -6,8 +6,6 @@ import { getName, getDirectoryName, getNameVec } from './file.js'
 import { baseDir } from './base-dir.js'
 
 import './styles/style.css'
-import { L } from '@tauri-apps/api/event-30ea0228.js'
-import { F } from '@tauri-apps/api/path-c062430b.js'
 
 //app node
 app.setAttribute("id", "app");
