@@ -174,7 +174,7 @@ export class DirectoryTreeListeners extends DirectoryTree {
                         if(getParentTags[i].classList.contains('is-active-parent')) {
                             this.createDirTreeChildNodes(getParentTags[i], parentNameTagsArr[i], "desktop");
                         } else if(!getParentTags[i].classList.contains('is-active-parent')) {
-                            getParentTags[i].querySelectorAll('.child-file-name').forEach((prop) => prop.remove());
+                            getParentTags[i].querySelectorAll('.child-file-name').forEach((v) => v.remove());
                         }
                     });
                 }
@@ -187,15 +187,14 @@ export class DirectoryTreeListeners extends DirectoryTree {
     }
 
     public childNodeListener() {
-        document.querySelectorAll('.child-file-name').forEach((v) => v.addEventListener('click', (e) => {
-            e.stopImmediatePropagation();
+        document.querySelectorAll('.child-file-name').forEach(
+            (v) => v.addEventListener('click', (e) => {
+                e.stopImmediatePropagation();
 
-            //console.log(e);
-            v.classList.toggle('is-active-child');
+                //console.log(e);
+                v.classList.toggle('is-active-child');
 
-            //if(target) {
-            console.log("child file");
-            //}
+                console.log("child file");
         }));
     }
 }
