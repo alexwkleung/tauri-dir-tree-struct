@@ -6,6 +6,8 @@ import { getName, getDirectoryName, getNameVec } from './file.js'
 import { baseDir } from './base-dir.js'
 
 import './styles/style.css'
+import { L } from '@tauri-apps/api/event-30ea0228.js'
+import { F } from '@tauri-apps/api/path-c062430b.js'
 
 //app node
 app.setAttribute("id", "app");
@@ -145,52 +147,41 @@ export class DirectoryTree {
 
 export class DirectoryTreeListeners extends DirectoryTree {
     public parentRootListener() {
-        const getParentTags: HTMLCollectionOf<Element> = fileDirectoryTreeNode.getElementsByClassName('parent-of-root-folder');
-
-        const getParentNameTags: HTMLCollectionOf<Element> = fileDirectoryTreeNode.getElementsByClassName('parent-folder-name');
-
-        const parentTagsArr: string[] = [];
-
-        //iterate over parent tags
-        for(let i = 0; i < getParentTags.length; i++) {
-            //for every parent tag, get the textContent value from the node
-            parentTagsArr.push(getParentTags[i].textContent);
-        }
-
-        const parentNameTagsArr: string[] = [];
-
-        //iterate over parent name tags
-        for(let i = 0; i < getParentNameTags.length; i++) {
-            parentNameTagsArr.push(getParentNameTags[i].textContent);
-        }
-
-        document.addEventListener("click", function(e){
-            const target = (e.target as Element).closest(".parent-folder-name");
+        document.addEventListener("click", (e) => {
+            //must use event delegation to handle events on dynamically created nodes or else it gets executed too early!
+            const target = (e.target as Element).closest("#file-directory-tree");
           
-            if(target){
-              target.classList.toggle('is-active-parent');
+            if(target) {
+                const getParentTags: HTMLCollectionOf<Element> = target.getElementsByClassName('parent-of-root-folder');
+                const getParentNameTags: HTMLCollectionOf<Element> = target.getElementsByClassName('parent-folder-name');
+
+                const parentTagsArr: string[] = [];
+                Array.from(getParentTags).forEach(
+                    (v) => parentTagsArr.push(v.textContent)
+                );
+        
+                const parentNameTagsArr: string[] = [];
+                Array.from(getParentNameTags).forEach(
+                    (v) => parentNameTagsArr.push(v.textContent)
+                );
+
+                for(let i = 0; i < getParentTags.length; i++) {
+                    //console.log(getParentTags[i]);
+                    getParentNameTags[i].addEventListener('click', (e) => { 
+                        //need to use stopPropagation on event handler so child nodes can be removed from the dom
+                        e.stopPropagation();
+
+                        getParentTags[i].classList.toggle('is-active-parent');
+
+                        if(getParentTags[i].classList.contains('is-active-parent')) {
+                            this.createDirTreeChildNodes(getParentTags[i], parentNameTagsArr[i]);
+                        } else if(!getParentTags[i].classList.contains('is-active-parent')) {
+                            getParentTags[i].querySelectorAll('.child-file-name').forEach((prop) => prop.remove());
+                        }
+                    });
+                }
             }
           });
-
-        //for all parent tags
-        /*
-        for(let i = 0; i < getParentTags.length; i++) {    
-            //when any parent tag (folder) is clicked
-            getParentNameTags[i].addEventListener('click', () => {
-                //toggle the `is-active-parent` class when parent tag is clicked
-                getParentTags[i].classList.toggle('is-active-parent');
-
-                //check if parent tag is active (has 'is-active-parent' class)
-                if(getParentTags[i].classList.contains('is-active-parent')) {
-                    this.createDirTreeChildNodes(getParentTags[i], parentNameTagsArr[i]);
-                //if parent tag is inactive (does not have 'is-active-parent' class)
-                } else if(!getParentTags[i].classList.contains('is-active-parent')) {
-                    //remove the children files of the parent folder from the dom
-                    getParentTags[i].querySelectorAll('.child-file-name').forEach((v) => v.remove());
-                }
-            });
-        } 
-        */
     }
 
     public childNodeListener() {
@@ -207,7 +198,5 @@ async function invokeF(): Promise<void> {
    await dirTree.createDirTreeParentNodes();
    
    dirTreeListeners.parentRootListener();
-
-   //dirTreeListeners.childNodeListener();
 } 
 invokeF();
