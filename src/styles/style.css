@@ -45,10 +45,10 @@ body {
     cursor: pointer;
 }
 
-.child-file-of-parent-root {
+.child-file-name {
     color: grey;
 }
-.child-file-of-parent-root:hover {
+.child-file-name:hover {
     cursor: pointer;
 }
 
@@ -61,16 +61,20 @@ body {
 }
 */
 
+/*
 .child-folder-of-parent-root {
     color: white;
 }
 .child-folder-of-parent-root:hover {
     cursor: pointer;
 }
+*/
 
+/*
 .child-of-root-folder {
     color: grey;
 }
 .child-of-root-folder:hover {
     cursor: pointer;
 }
+*/

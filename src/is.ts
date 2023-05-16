@@ -27,22 +27,26 @@ export async function isDirectory(baseDir: string, dir: string): Promise<unknown
     return isDirectory;
 }
 
-export async function isDirectoryCanonical(dir: string) {
-    return await invoke('get_canonical_path', { dir: dir }).then(
+export async function isDirectoryCanonical(dir: string): Promise<unknown> {
+    const isDirCanonical: boolean | unknown = await invoke('get_canonical_path', { dir: dir }).then(
         async (v) => {
             return await invoke('is_directory_canonical', { canonical_path: v }).then(
                 (vv) => vv
             ).catch((e) => { throw console.error(e) });
         }
     ).catch((e) => { throw console.error(e) });
+
+    return isDirCanonical;
 }
 
-export async function isFileCanonical(dirOfFile: string) {
-    return await invoke('get_canonical_path', { dir: dirOfFile}).then(
+export async function isFileCanonical(dirOfFile: string): Promise<unknown> {
+    const isFileCanonical: boolean | unknown = await invoke('get_canonical_path', { dir: dirOfFile}).then(
         async (v) => {
             return await invoke('is_file_canonical', { canonical_path: v }).then(
                 (vv) => vv
             ).catch((e) => { throw console.error(e) });
         }
     )
+
+    return isFileCanonical;
 }
