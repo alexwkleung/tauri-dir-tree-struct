@@ -28,17 +28,14 @@ export class DirectoryTree {
         let walkRef: string[] = [];
         
         //walk directory recursively
-        await walk(
-            await baseDir("desktop").then((v) => v) + "/Iris/Notes"
-        ).then(
-            async (v) => {
+        await walk(await baseDir("desktop").then((v) => v) + "/Iris/Notes").then(async (v) => {
                 walkRef = (v as string[]).slice(1);
             }
         ).catch((v) => { throw console.error(v) });
 
         const nameVecTemp: string[] = [];
 
-        await getNameVec("/Users/alex/Desktop/Iris/Notes/").then(async (props) => {
+        await getNameVec(await baseDir("desktop").then((v) => v) + "/Iris/Notes").then(async (props) => {
             (props as string[]).map(async (v) => {
                 nameVecTemp.push(v);
             }
@@ -93,13 +90,14 @@ export class DirectoryTree {
      */
     public async createDirTreeChildNodes(
         parentTags: Element, 
-        parentNameTags: string) {
+        parentNameTags: string,
+        base: string) {
 
         let walkRef: string[] = [];
         
         //walk directory recursively
         await walk(
-            await baseDir("desktop").then((v) => v) + "/Iris/Notes/" + parentNameTags
+            await baseDir(base).then((v) => v) + "/Iris/Notes/" + parentNameTags
         ).catch((e) => { throw console.error(e) }).then(
             (v) => {
                 walkRef = (v as string[]).slice(1);
@@ -144,8 +142,8 @@ export class DirectoryTree {
 }
 
 export class DirectoryTreeListeners extends DirectoryTree {
-    public parentRootListener() {
-        document.addEventListener("click", (e) => {
+    public parentRootListener(): void {
+        document.querySelector('#file-directory-tree').addEventListener("click", (e) => {
             //must use event delegation to handle events on dynamically created nodes or else it gets executed too early!
             const target = (e.target as Element).closest("#file-directory-tree");
           
@@ -166,27 +164,41 @@ export class DirectoryTreeListeners extends DirectoryTree {
                 for(let i = 0; i < getParentTags.length; i++) {
                     //console.log(getParentTags[i]);
                     getParentNameTags[i].addEventListener('click', (e) => { 
-                        //need to use stopPropagation on event handler so child nodes can be removed from the dom
-                        e.stopPropagation();
+                        //need to use stopImmediatePropagation on event handler so child nodes can be removed from the dom
+                        e.stopImmediatePropagation();
 
+                        //console.log(e);
+                        
                         getParentTags[i].classList.toggle('is-active-parent');
 
                         if(getParentTags[i].classList.contains('is-active-parent')) {
-                            this.createDirTreeChildNodes(getParentTags[i], parentNameTagsArr[i]);
+                            this.createDirTreeChildNodes(getParentTags[i], parentNameTagsArr[i], "desktop");
                         } else if(!getParentTags[i].classList.contains('is-active-parent')) {
                             getParentTags[i].querySelectorAll('.child-file-name').forEach((prop) => prop.remove());
                         }
                     });
                 }
             }
+
+           
+            //call child node listener once parent listener finishes execution
+            this.childNodeListener();
           });
     }
 
     public childNodeListener() {
-        return;
+        document.querySelectorAll('.child-file-name').forEach((v) => v.addEventListener('click', (e) => {
+            e.stopImmediatePropagation();
+
+            //console.log(e);
+            v.classList.toggle('is-active-child');
+
+            //if(target) {
+            console.log("child file");
+            //}
+        }));
     }
 }
-
 
 //invoke 
 async function invokeF(): Promise<void> {
